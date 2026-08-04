@@ -65,7 +65,7 @@ jobs:
           - id: open-in-plugin
             name: Open In Plugin
             version: ${VERSION}
-            date: $(date -u +%Y-%m-%d)
+            date: "$(date -u '+%Y-%m-%d %H:%M:%S')"
             path: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/open-in-plugin-v${VERSION}.zip
             sha256: ${SHA256}
             metadata:

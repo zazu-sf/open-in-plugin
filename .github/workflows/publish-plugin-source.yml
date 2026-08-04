@@ -1,0 +1,95 @@
+name: Publish Stash plugin source
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read plugin version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(grep '^version:' open-in-plugin.yml | sed 's/version:[[:space:]]*//')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build plugin package
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          mkdir -p build/open-in-plugin/assets
+          mkdir -p public
+
+          cp open-in-plugin.yml build/open-in-plugin/
+          cp open-in-plugin.js build/open-in-plugin/
+          cp open-in-plugin.css build/open-in-plugin/
+          cp assets/icon.svg build/open-in-plugin/assets/
+
+          cd build
+          zip -r "../public/open-in-plugin-v${VERSION}.zip" open-in-plugin
+          cd ..
+
+      - name: Calculate checksum
+        id: checksum
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          SHA256=$(sha256sum "public/open-in-plugin-v${VERSION}.zip" | awk '{print $1}')
+          echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
+
+      - name: Create Stash plugin index
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          SHA256="${{ steps.checksum.outputs.sha256 }}"
+
+          cat > public/index.yml <<EOF
+          - id: open-in-plugin
+            name: Open In Plugin
+            version: ${VERSION}
+            date: $(date -u +%Y-%m-%d)
+            path: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/open-in-plugin-v${VERSION}.zip
+            sha256: ${SHA256}
+            metadata:
+              description: Open Stash scenes in external player apps.
+              homepage: https://github.com/${{ github.repository }}
+          EOF
+
+      - name: Add Pages marker
+        run: touch public/.nojekyll
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

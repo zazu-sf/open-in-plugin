@@ -1,0 +1,70 @@
+name: Open In Plugin
+description: Open Stash scenes in external player apps. Designed primarily for Apple Vision Pro, visionOS, iOS, iPadOS, and macOS.
+version: 1.0.1
+url: https://github.com/[GITHUB-OWNER]/open-in-plugin
+
+ui:
+  javascript:
+    - open-in-plugin.js
+  css:
+    - open-in-plugin.css
+  assets:
+    /: assets
+
+settings:
+  defaultApp:
+    displayName: Default App
+    description: "App opened when the main icon is pressed. Default: moon. Valid values: moon, infuse, or custom. The selected app must also be enabled."
+    type: STRING
+  defaultSource:
+    displayName: Default Source
+    description: "Source opened when the main icon is pressed. Default: stream. Valid values: stream or smb."
+    type: STRING
+  buttonVisibility:
+    displayName: Button Visibility
+    description: "Controls when the button is shown. Default: controls. Valid values: controls, paused, or always."
+    type: STRING
+  enableMoon:
+    displayName: Enable Moon Player
+    description: "Show Moon Player in the app menu. Default: enabled. Intended primarily for immersive and VR playback on Apple Vision Pro."
+    type: BOOLEAN
+  enableInfuse:
+    displayName: Enable Infuse
+    description: "Show Infuse in the app menu. Default: enabled. Intended for general video playback on Apple platforms."
+    type: BOOLEAN
+  enableCustom:
+    displayName: Enable Custom App
+    description: "Show a configurable custom player in the app menu. Default: disabled."
+    type: BOOLEAN
+  customAppName:
+    displayName: Custom App Name
+    description: "Name shown for the custom player. Default: Custom Player."
+    type: STRING
+  customUrlTemplate:
+    displayName: Custom App URL Template
+    description: "Launch template for another app. Default: player://open?url={url}. Supported placeholders: {url}, {rawUrl}, {filename}, {sceneId}, and {source}."
+    type: STRING
+  stashBaseUrl:
+    displayName: Stash Base URL
+    description: "Address the external player uses to reach Stash. Default: blank, which uses the current browser address. Example: https://[STASH-HOST]:[PORT]."
+    type: STRING
+  apiKey:
+    displayName: Stash API Key
+    description: "Optional API key added to Stash stream URLs. Default: blank. The key becomes part of the URL passed to the external app."
+    type: STRING
+  streamPathTemplate:
+    displayName: Stash Stream Path
+    description: "Direct Stash stream endpoint. Default: /scene/{id}/stream. The {id} placeholder is replaced with the current scene ID."
+    type: STRING
+  stashFilePrefix:
+    displayName: Stash File Path Prefix
+    description: "Beginning of file paths stored in Stash that must be replaced for SMB playback. Default: /media."
+    type: STRING
+  smbServer:
+    displayName: SMB Server
+    description: "IP address or DNS name of the SMB server, without smb://. Default: blank. Example: [SERVER-IP] or media.example.local."
+    type: STRING
+  smbSharePath:
+    displayName: SMB Share and Base Path
+    description: "Share and optional base folder replacing the Stash prefix. Default: blank. Example: /share/media."
+    type: STRING
